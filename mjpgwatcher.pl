@@ -69,7 +69,7 @@ sub main {
         )->detach();
     }
 
-    while(1) {
+    while(@cam_urls) {
         sleep 10;
     }
 }
