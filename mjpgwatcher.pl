@@ -24,12 +24,14 @@ main(@ARGV);
 sub main {
     my (@cam_urls) = @_;
 
-    $opt_s ||= 5 * 1024 * 1024;
+    $opt_s ||= 5;
     $opt_t ||= '/tmp';
     $opt_d ||= './';
     $opt_f ||= 10;
     $opt_e ||= 'avi';
     $opt_o ||= '%H.%P.%E';
+
+    $opt_s *= 1024 * 1024;
 
     for my $cam_url (@cam_urls) {
         $cam_url =~ /^(https?):\/\/([^:]+)(?:\:(\d+))?\//;
@@ -79,11 +81,12 @@ sub downloader_thread {
 
     $ua->get(
         $url,
-        'read_size_hint' => 10 * 1024,
+        ':read_size_hint' => 10 * 1024,
         ':content_cb' => sub {
             my ($data, $response) = @_;
 
             $data_queue->enqueue($data);
+	    threads->yield();
         },
     );
 }
@@ -120,6 +123,7 @@ sub converter_thread {
     
             system qw/ffmpeg -r/, $framerate, '-i', $filename, "$dest_dir/$outfile";
             unlink $filename;
+	    threads->yield();
         }
     }
 }
@@ -127,11 +131,13 @@ sub converter_thread {
 sub get_file {
     my ($tmp_dir, $format, $host, $port) = @_;
 
-    my ($year, $month, $day, $hour, $minute, $second) = split ':', strftime('%Y:%m:%d:%H:%M:%S', localtime());
+    my $now = time();
+
+    my ($year, $month, $day, $hour, $minute, $second) = split ':', strftime('%Y:%m:%d:%H:%M:%S', localtime($now));
 
     $format =~ s/%H/$host/g;
     $format =~ s/%P/$port/g;
-    $format =~ s/%E/time()/ge;
+    $format =~ s/%E/$now/g;
 
     $format =~ s/%Y/$year/g;
     $format =~ s/%m/$month/g;
