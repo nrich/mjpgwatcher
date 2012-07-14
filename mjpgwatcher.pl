@@ -96,35 +96,31 @@ sub writer_thread {
 
     my $fh = get_file($tmp_dir, $format, $host, $port);
 
-    while (1) {
-        while (my $data = $data_queue->dequeue_nb()) {
-            print $fh $data;
+    while (my $data = $data_queue->dequeue()) {
+        print $fh $data;
 
-            if (-s $fh > $max_size) {
-                my $filename = filename_from_handle($fh);
-                $conversion_queue->enqueue($filename);
+        if (-s $fh > $max_size) {
+            my $filename = filename_from_handle($fh);
+            $conversion_queue->enqueue($filename);
 
-                close $fh;
+            close $fh;
 
-                $fh = get_file($tmp_dir, $format, $host, $port);
-            }
-
-	    threads->yield();
+            $fh = get_file($tmp_dir, $format, $host, $port);
         }
+
+	threads->yield();
     }
 }
 
 sub converter_thread {
     my ($dest_dir, $framerate, $extension, $conversion_queue) = @_;
 
-    while (1) {
-        while (my $filename = $conversion_queue->dequeue_nb()) {
-            (my $outfile = basename $filename) =~ s/\.mjpg$/.$extension/g;
+    while (my $filename = $conversion_queue->dequeue()) {
+        (my $outfile = basename $filename) =~ s/\.mjpg$/.$extension/g;
     
-            system qw/ffmpeg -r/, $framerate, '-i', $filename, "$dest_dir/$outfile";
-            unlink $filename;
-	    threads->yield();
-        }
+        system qw/ffmpeg -r/, $framerate, '-i', $filename, "$dest_dir/$outfile";
+        unlink $filename;
+	threads->yield();
     }
 }
 
