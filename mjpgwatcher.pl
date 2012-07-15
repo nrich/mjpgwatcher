@@ -33,7 +33,7 @@ sub main {
     $opt_s *= 1024 * 1024;
 
     for my $cam_url (@cam_urls) {
-        $cam_url =~ /^(https?):\/\/([^:]+)(?:\:(\d+))?\//;
+        $cam_url =~ /^(https?):\/\/([^:]+)(?:\:(\d+))?\/?/;
 
         my $proto = $1;
         my $host = $2;
