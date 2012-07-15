@@ -29,7 +29,7 @@ sub main {
     $opt_d ||= './';
     $opt_f ||= 10;
     $opt_e ||= 'avi';
-    $opt_o ||= '%H.%P.%E';
+    $opt_o ||= 'HOST.PORT.EPOCH';
 
     $opt_s *= 1024 * 1024;
 
@@ -129,20 +129,13 @@ sub get_file {
 
     my $now = time();
 
-    my ($year, $month, $day, $hour, $minute, $second) = split ':', strftime('%Y:%m:%d:%H:%M:%S', localtime($now));
+    $format =~ s/HOST/$host/g;
+    $format =~ s/PORT/$port/g;
+    $format =~ s/EPOCH/$now/g;
 
-    $format =~ s/%H/$host/g;
-    $format =~ s/%P/$port/g;
-    $format =~ s/%E/$now/g;
+    my $out = strftime($format, localtime($now));
 
-    $format =~ s/%Y/$year/g;
-    $format =~ s/%m/$month/g;
-    $format =~ s/%d/$day/g;
-    $format =~ s/%H/$hour/g;
-    $format =~ s/%M/$minute/g;
-    $format =~ s/%S/$second/g;
-
-    my $filename = "$tmp_dir/$format.mjpg";
+    my $filename = "$tmp_dir/$out.mjpg";
 
     open my $fh, '>', $filename or die "Could not open `$filename': $!";
  

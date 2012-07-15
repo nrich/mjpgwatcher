@@ -24,16 +24,11 @@ Options:
 -e (avi)
     Extension (and file format) of converted output video files.
  
--o ('%H.%P.%E')
+-o ('HOST.PORT.EPOCH')
     Format string describing converted output video files. 
     
-    * %H - hostname of capture stream
-    * %P - port of capture stream
-    * %E - current epoch time
-    * %Y - current year in YYYY
-    * %m - current month in mm
-    * %d - current day of month in dd
-    * %h - current hour
-    * %m - current minute
-    * %s - current second    
+    * HOST - hostname of capture stream
+    * PORT - port of capture stream
+    * EPOCH - current epoch time
 
+    The format string is also bassed to strftime.
