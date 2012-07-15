@@ -1,6 +1,8 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+
 use GD qw//;
 use Getopt::Std qw/getopt/;
 use File::Basename qw/basename/;
@@ -12,9 +14,6 @@ use LWP::UserAgent qw//;
 
 use threads qw//;
 use Thread::Queue qw//;
-use threads::shared qw//;
-
-my $still_running : shared = 1;
 
 use vars qw/$opt_s $opt_t $opt_d $opt_f $opt_e $opt_o/;
 getopt('s:t:d:f:e:o:');
